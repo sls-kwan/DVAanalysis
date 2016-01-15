@@ -1,0 +1,14 @@
+Sample,Age,Extracted Molecule,Machine,Type ,,
+SRX1434951,E9.5,\,Illumina HiSeq 2500,mRNA,,
+SRX1434952,E9.5,Total RNA,Illumina HiSeq 2500,mRNA,,
+SRX1434950,E9.5,Total RNA,Illumina HiSeq 2500,mRNA,,
+SRX1434949,E9.5,Total RNA,Illumina HiSeq 2500,mRNA,,
+SRX957727,E13.5,Total RNA,Illumina HiSeq 2000,cDNA,,
+SRX698163,E12.5,Total RNA,Illumina HiSeq 2000,cDNA,,
+SRX698162,E12.5,Total RNA,Illumina HiSeq 2000,cDNA,,
+SRX698161,E12.5,Total RNA,Illumina HiSeq 2000,cDNA,,
+SRX147597,E14.5,PolyA RNA,Illumina HiSeq 2000,cDNA,,
+SRX515334,E14.5,PolyA RNA,Illumina HiSeq 2000,cDNA,cardiomyocyte,"GSE56638, 138 tissues samples from different organs of the mouse"
+SRX351966,E18,Total RNA,Illumina HiSeq 2000,cDNA,,
+SRX147596,E14.5,PolyA RNA,Illumina HiSeq 2000,cDNA,Brain,Example of tissue reference
+SRX212198,E12.5,Total RNA,Illumina MiSeq,cDNA,heart ventricle,
