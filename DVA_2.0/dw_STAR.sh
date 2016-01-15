@@ -10,9 +10,11 @@ currDir=`pwd`/
 outpdf="output.pdf"
 outtxt="output.txt"
 while IFS='' read -r line || [[ -n "$line" ]]; do
-	if [ ! -f $line$string3 -o ! -f $line$string1]
+	if [ -f $line$string3 ] || [ -f $line$string1 ]
 	   then
-            /tmp/notbackedup/software/sratoolkit.2.4.2-centos_linux64/bin/fastq-dump --split-3 $line
+			echo "Already have files"
+	else
+      /tmp/notbackedup/software/sratoolkit.2.4.2-centos_linux64/bin/fastq-dump --split-3 $line
 	fi
 	echo "Finished fastq download"
 	if [ -f $line$string2 ]
