@@ -1,6 +1,8 @@
 setwd("~/IT/DVA_2.0/")
 source("DVA_2_0Re.R")
 
+##Input, d is dataframe, group1 and group2 are numbers in each respective group
+##Cutoff is the minimum cutoff
 DVAnalysis <- function(d, group1, group2 , cutoff){
   ##Creates DV analysis Framework
   result<-dva(d,group1,group2,test="F",outlier.rm=T,r=1.5,piter=5000,thres=0,verbose=F);
@@ -38,6 +40,9 @@ DVAnalysis <- function(d, group1, group2 , cutoff){
   names(allDVGenes) <- c("UpDV", "DownDV")
   return(allDVGenes)
 }
+
+##Input, d is dataframe, group1 and group2 are numbers in each respective group
+##Threshold is the minimum cutoff
 DEAnalysis <- function(d, group1 , group2, threshold){
   ##Differential Expression analysis using the limma and edge R package
   require(limma)
@@ -72,6 +77,7 @@ DEAnalysis <- function(d, group1 , group2, threshold){
 }
 
 ##Function that finds Both Up and Down in DE and DV analysis
+## Uses a list of DVgenes and DEgenes
 DEnDVAnalysis <- function(DVgenes, DEgenes){
   UpDVnDE <- intersect(names(DVgenes$UpDV), rownames(DEgenes$UpDE))
   DownDVnDE <- intersect(names(DVgenes$DownDV), rownames(DEgenes$DownDE))
@@ -81,6 +87,7 @@ DEnDVAnalysis <- function(DVgenes, DEgenes){
 }
 
 ##Function that finds Up and Down (Overlapping) DV and DE analysis in gene list
+##Uses a list of DVgenes and DEgenes
 DEUDVUAnalysis <- function(DVgenes, DEgenes){
   DownDVnDE <- intersect(names(DVgenes$UpDV), rownames(DEgenes$DownDE))
   UpDVnDE <- intersect(names(DVgenes$DownDV), rownames(DEgenes$UpDE))
