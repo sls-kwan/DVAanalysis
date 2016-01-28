@@ -26,7 +26,12 @@ remDr <- remoteDriver(remoteServerAddr = "localhost"
 ##Species is the species of interest(M for mouse and everthing else will be use human background )
 AutoSubmit("bothDownGSE51372", "OFFICIAL_GENE_SYMBOL", "M")
 # AutoSubmit("bothUpE-MTAB-2805", "ENSEMBL_GENE_ID", "M")
-AutoSubmit("bothUpGSE69405", "ENSEMBL_GENE_ID", "H")
+dataLookat <- read.csv("~/IT/DVA_2.0/dataLookat.txt", header=FALSE)
+AutoSubmit("UpdvE-MTAB-2805", "ENSEMBL_GENE_ID", "H")
+apply(dataLookat, 1, function(x){
+  x <- as.character(x)
+  AutoSubmit(x[1], x[2], x[3])
+})
 AutoSubmit <- function(inputFile, geneType, species){
   #Opens browser window and navigates to DAVID site
   remDr$open()
@@ -68,21 +73,25 @@ AutoSubmit <- function(inputFile, geneType, species){
   FunctionChart <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[5]/td[2]/a/ul/li[2]/font/small/big')$clickElement()
   clearAll <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table[2]/tbody/tr[2]/td[3]/input')$clickElement()
   #Clear all selection and select GO default terms and all pathway terms
-  GeneOntology <- remDr$findElement(using='partial link text', value='Gene_Ontology')
-  GeneOntology$clickElement()
-  GOTerms <- remDr$findElements(using='id', value='Gene_Ontology')
-  GOindexes <- c("25","32","39")
-  lapply(GOTerms, function(x){
+  GeneOntology <- try(remDr$findElement(using='partial link text', value='Gene_Ontology'))
+  if(!("try-error" %in% class(GeneOntology))){
+    GeneOntology <- remDr$findElement(using='partial link text', value='Gene_Ontology')
+    GeneOntology$clickElement()
+    GOTerms <- remDr$findElements(using='id', value='Gene_Ontology')
+    GOindexes <- c("25","32","39")
+    lapply(GOTerms, function(x){
       value <- x$getElementAttribute("value")
       presence <- any(grepl(unlist(value),GOindexes, fixed=T))
       if(presence){x$clickElement()}
-  })
-  
-  PathwaysOpen <- remDr$findElement(using='id', 'Pathwaystd')$clickElement()
-  Pathways <-remDr$findElements(using='id', value='Pathways')
-  lapply(Pathways, function(x){
-    x$clickElement()
-  })
+    })
+  }
+  PathwaysOpen <- try(remDr$findElement(using='id', 'Pathwaystd')$clickElement())
+  if(!("try-error" %in% class(PathwaysOpen))){
+    Pathways <-remDr$findElements(using='id', value='Pathways')
+    lapply(Pathways, function(x){
+      x$clickElement()
+    })
+  }
   #Get chart
   GetChart <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table[3]/tbody/tr[3]/td/button')$clickElement()
   #Need to switch to new window
@@ -105,7 +114,7 @@ AutoSubmit <- function(inputFile, geneType, species){
   #Get the gene list and saves it
   GetList <- remDr$findElement(using='xpath', '/html/body/table/tbody/tr[2]/td/table[2]/tbody/tr/td/input[1]')$clickElement()
   SaveList <- remDr$findElements(using='xpath', '/html/body/table/tbody/tr[2]/td/table[3]/tbody/tr/td[2]/font/a')
-  if(is.null(SaveList)){print("No results");remDr$close()}
+  if(length(SaveList) == 0){print("No results");remDr$close();return();}
   SaveList[[1]]$clickElement()
   allWindows <- unlist(remDr$getWindowHandles())
   remDr$switchToWindow(allWindows[3])
@@ -124,11 +133,7 @@ AutoSubmit <- function(inputFile, geneType, species){
   output <- htmlToText(output)
   fileName <- paste("~/IT/DVA_2.0/GO/",name, sep='')
   fileConn <- file.create(fileName)
-  if(fileConn){
-    write(output, file=fileName)
-  } else{
-    browser()
-  }
+  write(output, file=fileName)
   remDr$deleteAllCookies()
   remDr$close()
 }
