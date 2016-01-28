@@ -22,11 +22,13 @@ remDr <- remoteDriver(remoteServerAddr = "localhost"
 
 ##Function allows user to do GO analysis using the DAVID website
 ##inputFile is the inputfile that contains the list of genes that need to have analysis on them
+##Make sure the file has content
 ##geneType is the gene identifier
 ##Species is the species of interest(M for mouse and everthing else will be use human background )
 AutoSubmit("bothDownGSE51372", "OFFICIAL_GENE_SYMBOL", "M")
 # AutoSubmit("bothUpE-MTAB-2805", "ENSEMBL_GENE_ID", "M")
-dataLookat <- read.csv("~/IT/DVA_2.0/dataLookat.txt", header=FALSE)
+dataLookat <- read.csv("~/IT/DVA_2.0/EMTAB2805", header=FALSE)
+AutoSubmit("bothDownGSE67835", "OFFICIAL_GENE_SYMBOL", "H")
 AutoSubmit("UpdvE-MTAB-2805", "ENSEMBL_GENE_ID", "H")
 apply(dataLookat, 1, function(x){
   x <- as.character(x)
@@ -50,16 +52,19 @@ AutoSubmit <- function(inputFile, geneType, species){
   if(!("try-error" %in% class(testValid))){
       validGenes <- unlist(remDr$findElement(using='xpath', '//*[@id="conversion"]/table/tbody/tr[4]/td/b/input'))
       validGenes$clickElement()
+  } else {
+    testExist <- try(remDr$findElement(using='xpath', '//*[@id="conversion"]/table/tbody/tr[4]/td/span/input'))
+    if(!("try-error" %in% class(testExist))){
+        print("There is no gene IDS in file")
+        return()
+    }
   }
-  alertExist <- try(remDr$acceptAlert())
-#   if(!("try-error" %in% class(alertExist))){
-#     print("test")
-#     browser()
-#     remDr$acceptAlert()
-#   }
+  alertExist <- try(remDr$getAlertText())
+  if(!("try-error" %in% class(alertExist))){
+    remDr$acceptAlert()
+  }
   #Select spcies and submit
-  SelectSpecies <- remDr$findElement(using='xpath', '//*[@id="divManager"]/table[1]/tbody/tr[3]/td/p[1]/font/select/option[1]')$clickElement()
-  submitSpecies <- remDr$findElement(using='name', value='B1')$clickElement()
+
   #Select the most recent entry of the background
   BackgroundTab <- remDr$findElement(using ='xpath', "//*[@id='tablist']/li[3]/a")$clickElement()
   ##This selects the mouse background
@@ -71,6 +76,11 @@ AutoSubmit <- function(inputFile, geneType, species){
   }
   #Get the functional chart
   FunctionChart <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[5]/td[2]/a/ul/li[2]/font/small/big')$clickElement()
+  #Use mouse click instead of clickElement() as it can select only that element, not only not that element
+  SelectSpecies <- remDr$findElement(using='xpath', '//*[@id="divManager"]/table[1]/tbody/tr[3]/td/p[1]/font/select/option[@value= "0"]')
+  remDr$mouseMoveToLocation(webElement = SelectSpecies)
+  remDr$click(0)
+  submitSpecies <- remDr$findElement(using='name', value='B1')$clickElement()
   clearAll <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table[2]/tbody/tr[2]/td[3]/input')$clickElement()
   #Clear all selection and select GO default terms and all pathway terms
   GeneOntology <- try(remDr$findElement(using='partial link text', value='Gene_Ontology'))
@@ -113,9 +123,12 @@ AutoSubmit <- function(inputFile, geneType, species){
   CountOptions$sendKeysToElement(list('10'))
   #Get the gene list and saves it
   GetList <- remDr$findElement(using='xpath', '/html/body/table/tbody/tr[2]/td/table[2]/tbody/tr/td/input[1]')$clickElement()
-  SaveList <- remDr$findElements(using='xpath', '/html/body/table/tbody/tr[2]/td/table[3]/tbody/tr/td[2]/font/a')
-  if(length(SaveList) == 0){print("No results");remDr$close();return();}
-  SaveList[[1]]$clickElement()
+  SaveList <- try(remDr$findElement(using='xpath', '/html/body/table/tbody/tr[2]/td/table[3]/tbody/tr/td[2]/font/a'))
+  if("try-error" %in% class(SaveList)){
+    print("No results");remDr$close();return();
+  }
+  SaveList <- remDr$findElement(using='xpath', '/html/body/table/tbody/tr[2]/td/table[3]/tbody/tr/td[2]/font/a')
+  SaveList$clickElement()
   allWindows <- unlist(remDr$getWindowHandles())
   remDr$switchToWindow(allWindows[3])
   x <- remDr$getCurrentUrl()[[1]]
