@@ -84,6 +84,7 @@ AutoSubmit <- function(inputFile, geneType, species){
   clearAll <- remDr$findElement(using='xpath', '/html/body/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/form/table[2]/tbody/tr[2]/td[3]/input')$clickElement()
   #Clear all selection and select GO default terms and all pathway terms
   GeneOntology <- try(remDr$findElement(using='partial link text', value='Gene_Ontology'))
+  #Selects default GO terms
   if(!("try-error" %in% class(GeneOntology))){
     GeneOntology <- remDr$findElement(using='partial link text', value='Gene_Ontology')
     GeneOntology$clickElement()
@@ -95,6 +96,7 @@ AutoSubmit <- function(inputFile, geneType, species){
       if(presence){x$clickElement()}
     })
   }
+  #Selects all GO pathway terms
   PathwaysOpen <- try(remDr$findElement(using='id', 'Pathwaystd')$clickElement())
   if(!("try-error" %in% class(PathwaysOpen))){
     Pathways <-remDr$findElements(using='id', value='Pathways')
